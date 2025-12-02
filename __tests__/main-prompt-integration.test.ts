@@ -233,4 +233,62 @@ model: openai/gpt-4o
     // Verify process.exit was called with code 0 (success)
     expect(mockProcessExit).toHaveBeenCalledWith(0)
   })
+
+  it('supports file_input in legacy format by appending file contents to prompt', async () => {
+    const externalFilePath = 'config.json'
+    mockExistsSync.mockReturnValue(true)
+
+    mockReadFileSync.mockImplementation((path: string) => {
+      if (path === externalFilePath) {
+        return '{"key": "value"}'
+      }
+      return ''
+    })
+
+    core.getInput.mockImplementation((name: string) => {
+      switch (name) {
+        case 'prompt':
+          return 'Analyze this JSON:'
+        case 'system-prompt':
+          return 'You are helpful'
+        case 'file_input':
+          return `config: ${externalFilePath}`
+        case 'model':
+          return 'openai/gpt-4o'
+        case 'max-tokens':
+          return '200'
+        case 'endpoint':
+          return 'https://models.github.ai/inference'
+        case 'enable-github-mcp':
+          return 'false'
+        default:
+          return ''
+      }
+    })
+
+    await run()
+
+    // Verify simpleInference was called with file contents appended to prompt
+    expect(mockSimpleInference).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messages: [
+          {
+            role: 'system',
+            content: 'You are helpful',
+          },
+          {
+            role: 'user',
+            content: 'Analyze this JSON:\n\n--- config ---\n{"key": "value"}',
+          },
+        ],
+        modelName: 'openai/gpt-4o',
+        maxTokens: 200,
+        endpoint: 'https://models.github.ai/inference',
+        token: 'test-token',
+      }),
+    )
+
+    // Verify process.exit was called with code 0 (success)
+    expect(mockProcessExit).toHaveBeenCalledWith(0)
+  })
 })

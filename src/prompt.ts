@@ -86,6 +86,23 @@ export function parseFileTemplateVariables(fileInput: string): TemplateVariables
 }
 
 /**
+ * Format file attachments for appending to a prompt in legacy format.
+ * Returns a formatted string with file contents labeled by their variable names.
+ */
+export function formatFileAttachments(fileVariables: TemplateVariables): string {
+  const entries = Object.entries(fileVariables)
+  if (entries.length === 0) {
+    return ''
+  }
+
+  const attachments = entries.map(([name, content]) => {
+    return `--- ${name} ---\n${content}`
+  })
+
+  return '\n\n' + attachments.join('\n\n')
+}
+
+/**
  * Replace template variables in text using {{variable}} syntax
  */
 export function replaceTemplateVariables(text: string, variables: TemplateVariables): string {
