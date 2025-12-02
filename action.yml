@@ -23,7 +23,10 @@ inputs:
     required: false
     default: ''
   file_input:
-    description: Template variables in YAML format mapping variable names to file paths. The file contents will be used for templating.
+    description: >-
+      File paths in YAML format mapping names to file paths. For .prompt.yml files,
+      the file contents are used as template variables. For legacy prompts, the
+      file contents are appended to the prompt with labels.
     required: false
     default: ''
   model:

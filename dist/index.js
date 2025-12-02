@@ -52568,6 +52568,20 @@ function parseFileTemplateVariables(fileInput) {
     }
 }
 /**
+ * Format file attachments for appending to a prompt in legacy format.
+ * Returns a formatted string with file contents labeled by their variable names.
+ */
+function formatFileAttachments(fileVariables) {
+    const entries = Object.entries(fileVariables);
+    if (entries.length === 0) {
+        return '';
+    }
+    const attachments = entries.map(([name, content]) => {
+        return `--- ${name} ---\n${content}`;
+    });
+    return '\n\n' + attachments.join('\n\n');
+}
+/**
  * Replace template variables in text using {{variable}} syntax
  */
 function replaceTemplateVariables(text, variables) {
@@ -52649,6 +52663,9 @@ async function run() {
             coreExports.info('Using legacy prompt format');
             prompt = loadContentFromFileOrInput('prompt-file', 'prompt');
             systemPrompt = loadContentFromFileOrInput('system-prompt-file', 'system-prompt', 'You are a helpful assistant');
+            // Append file contents to prompt if file_input is provided
+            const fileVars = parseFileTemplateVariables(fileInputVariables);
+            prompt = prompt + formatFileAttachments(fileVars);
         }
         // Get common parameters
         const modelName = promptConfig?.model || coreExports.getInput('model');

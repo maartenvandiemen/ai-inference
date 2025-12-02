@@ -7,6 +7,7 @@ import {
   loadPromptFile,
   isPromptYamlFile,
   parseFileTemplateVariables,
+  formatFileAttachments,
 } from '../src/prompt'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -134,6 +135,38 @@ describe('prompt.ts', () => {
 
     it('errors on missing files', () => {
       expect(() => parseFileTemplateVariables('x: ./does-not-exist.txt')).toThrow('was not found')
+    })
+  })
+
+  describe('formatFileAttachments', () => {
+    it('should return empty string for empty variables', () => {
+      const result = formatFileAttachments({})
+      expect(result).toBe('')
+    })
+
+    it('should format a single file attachment', () => {
+      const result = formatFileAttachments({
+        config: '{"key": "value"}',
+      })
+      expect(result).toBe('\n\n--- config ---\n{"key": "value"}')
+    })
+
+    it('should format multiple file attachments', () => {
+      const result = formatFileAttachments({
+        config: '{"key": "value"}',
+        data: '<xml>content</xml>',
+      })
+      expect(result).toContain('--- config ---\n{"key": "value"}')
+      expect(result).toContain('--- data ---\n<xml>content</xml>')
+      expect(result.startsWith('\n\n')).toBe(true)
+    })
+
+    it('should preserve multiline file contents', () => {
+      const multilineContent = 'line1\nline2\nline3'
+      const result = formatFileAttachments({
+        file: multilineContent,
+      })
+      expect(result).toBe('\n\n--- file ---\nline1\nline2\nline3')
     })
   })
 })

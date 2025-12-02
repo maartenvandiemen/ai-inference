@@ -47,6 +47,39 @@ steps:
       prompt-file: './path/to/prompt.txt'
 ```
 
+### Adding files to the prompt
+
+You can attach file contents to your prompt using the `file_input` parameter.
+This is useful when you need to include JSON, YAML, XML, or other file contents
+without manually escaping them:
+
+```yaml
+steps:
+  - name: Analyze configuration file
+    id: inference
+    uses: actions/ai-inference@v1
+    with:
+      prompt: 'Please analyze this configuration file and suggest improvements:'
+      file_input: |
+        config: ./config.json
+        schema: ./schema.yaml
+```
+
+The file contents are automatically appended to the prompt with clear labels:
+
+```
+Please analyze this configuration file and suggest improvements:
+
+--- config ---
+{ "key": "value" }
+
+--- schema ---
+type: object
+properties:
+  key:
+    type: string
+```
+
 ### Using GitHub prompt.yml files
 
 For more advanced use cases, you can use structured `.prompt.yml` files that
@@ -234,7 +267,7 @@ the action:
 | `prompt`             | The prompt to send to the model                                                                                                                               | N/A                                  |
 | `prompt-file`        | Path to a file containing the prompt (supports .txt and .prompt.yml formats). If both `prompt` and `prompt-file` are provided, `prompt-file` takes precedence | `""`                                 |
 | `input`              | Template variables in YAML format for .prompt.yml files (e.g., `var1: value1` on separate lines)                                                              | `""`                                 |
-| `file_input`         | Template variables in YAML where values are file paths. The file contents are read and used for templating                                                    | `""`                                 |
+| `file_input`         | File paths in YAML format. For .prompt.yml files, contents are used as template variables. For other prompts, contents are appended with labels               | `""`                                 |
 | `system-prompt`      | The system prompt to send to the model                                                                                                                        | `"You are a helpful assistant"`      |
 | `system-prompt-file` | Path to a file containing the system prompt. If both `system-prompt` and `system-prompt-file` are provided, `system-prompt-file` takes precedence             | `""`                                 |
 | `model`              | The model to use for inference. Must be available in the [GitHub Models](https://github.com/marketplace?type=models) catalog                                  | `openai/gpt-4o`                      |

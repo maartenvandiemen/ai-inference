@@ -10,6 +10,7 @@ import {
   isPromptYamlFile,
   PromptConfig,
   parseFileTemplateVariables,
+  formatFileAttachments,
 } from './prompt.js'
 
 /**
@@ -44,6 +45,10 @@ export async function run(): Promise<void> {
 
       prompt = loadContentFromFileOrInput('prompt-file', 'prompt')
       systemPrompt = loadContentFromFileOrInput('system-prompt-file', 'system-prompt', 'You are a helpful assistant')
+
+      // Append file contents to prompt if file_input is provided
+      const fileVars = parseFileTemplateVariables(fileInputVariables)
+      prompt = prompt + formatFileAttachments(fileVars)
     }
 
     // Get common parameters
