@@ -52664,13 +52664,8 @@ async function run() {
             prompt = loadContentFromFileOrInput('prompt-file', 'prompt');
             systemPrompt = loadContentFromFileOrInput('system-prompt-file', 'system-prompt', 'You are a helpful assistant');
             // Append file contents to prompt if file_input is provided
-            if (fileInputVariables.trim()) {
-                const fileVars = parseFileTemplateVariables(fileInputVariables);
-                const fileAttachments = formatFileAttachments(fileVars);
-                if (fileAttachments) {
-                    prompt = prompt + fileAttachments;
-                }
-            }
+            const fileVars = parseFileTemplateVariables(fileInputVariables);
+            prompt = prompt + formatFileAttachments(fileVars);
         }
         // Get common parameters
         const modelName = promptConfig?.model || coreExports.getInput('model');

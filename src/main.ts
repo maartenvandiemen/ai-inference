@@ -47,13 +47,8 @@ export async function run(): Promise<void> {
       systemPrompt = loadContentFromFileOrInput('system-prompt-file', 'system-prompt', 'You are a helpful assistant')
 
       // Append file contents to prompt if file_input is provided
-      if (fileInputVariables.trim()) {
-        const fileVars = parseFileTemplateVariables(fileInputVariables)
-        const fileAttachments = formatFileAttachments(fileVars)
-        if (fileAttachments) {
-          prompt = prompt + fileAttachments
-        }
-      }
+      const fileVars = parseFileTemplateVariables(fileInputVariables)
+      prompt = prompt + formatFileAttachments(fileVars)
     }
 
     // Get common parameters
